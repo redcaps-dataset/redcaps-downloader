@@ -1,0 +1,11 @@
+click>=7.0.0
+ftfy>=6.0.0
+Pillow>=7.0.0
+praw==7.1.0
+requests==2.24.0
+spacy>=3.0.0
+tensorflow>=2.0.0
+tensorflow-hub==0.7.0
+torch>=1.7.0
+torchvision>=0.8.0
+tqdm>=4.36.0
