@@ -67,7 +67,7 @@ and arrange all the data in recommended directory structure:
 2. Download official RedCaps annotations from Dropbox and unzip them.
     ```bash
     cd datasets/redcaps
-    wget https://www.dropbox.com/s/twvv541sbg0qqux/redcaps_v1.0_annotations.zip?dl=1
+    wget https://www.dropbox.com/s/cqtdpsl4hewlli1/redcaps_v1.0_annotations.zip?dl=1
     unzip redcaps_v1.0_annotations.zip
     ```
 
