@@ -13,6 +13,17 @@ import requests
 import redcaps._color_print as cprint
 
 
+def int2base36(number: int, alphabet: str = "0123456789abcdefghijklmnopqrstuvwxyz"):
+    """Converts an integer to a base36 string."""
+
+    base36 = ""
+    while number != 0:
+        number, i = divmod(number, len(alphabet))
+        base36 = alphabet[i] + base36
+
+    return base36
+
+
 class RedditIdDownloader(object):
     r"""
     Download IDs of image posts made to a particular subreddit on a single date.
@@ -33,6 +44,16 @@ class RedditIdDownloader(object):
             self.date = datetime.datetime(date.year, date.month, date.day)
 
         self.date = self.date.replace(tzinfo=datetime.timezone.utc)
+
+        # List of permissible domains. Pushshift v1 API allowed passing them in API
+        # request, but beta API does not. So we keep them here to filter API response
+        # and have backward compatibility with previous version of this downloader
+        # that uses v1 API.
+        self._allow_domains = [
+            "reddit.com", "i.redd.it", "i.imgur.com", "imgur.com", "m.imgur.com"
+        ]
+        self._allow_domains.extend([f"farm{i}.static.flickr.com" for i in range(9)])
+        self._allow_domains.extend([f"farm{i}.staticflickr.com" for i in range(9)])
 
     def download(self, time_window: float = 24.0) -> List[str]:
         r"""
@@ -87,33 +108,30 @@ class RedditIdDownloader(object):
         # Gather all necessary params for Pushshift GET request payload.
         payload: Dict[str, str] = {
             "subreddit": self.subreddit,
-            "after": str(int(start_time.timestamp())),
-            "before": str(int(end_time.timestamp())),
-            "size": "100",
-            # Only get IDs, nothing else. We use official Reddit API for rest.
-            "fields": "id",
-            # Domain must be an image hosting service (for direct image links).
-            # Exception: imgur.com and reddit.com (galleries) - handled separately.
-            "domain": (
-                "reddit.com,i.redd.it,i.imgur.com,imgur.com,m.imgur.com,"
-                + ",".join([f"farm{i}.static.flickr.com" for i in range(9)])
-                + ","
-                + ",".join([f"farm{i}.staticflickr.com" for i in range(9)])
-            ),
+            "since": str(int(start_time.timestamp())),
+            "until": str(int(end_time.timestamp())),
+            "limit": "1000",
+            # Get IDs and domains to filter responses, nothing else. All other
+            # metadata is obtained from the official Reddit API.
+            "filter": "id,domain",
         }
         # GET request to download metadata for Reddit posts in this time window.
         # Keep retrying till we get OK response (200).
         status_code = 404
         while status_code != 200:
             response = requests.get(
-                "http://api.pushshift.io/reddit/submission/search", params=payload
+                "https://beta.pushshift.io/reddit/search/submissions", params=payload
             )
             status_code = response.status_code
             time.sleep(1)
 
-        _ids = [r["id"] for r in json.loads(response.content)["data"]]
+        response = json.loads(response.content)["data"]
+        _ids = [
+            int2base36(r["id"]) for r in response
+            if r["domain"] in self._allow_domains
+        ]
 
-        if len(_ids) >= 100:
+        if len(_ids) >= 1000:
             # If we received 100 Reddit post IDs, then perhaps there are more
             # in this time window (due to high subreddit activity). So we
             # download IDs recursively with smaller time windows.
