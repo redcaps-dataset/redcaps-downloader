@@ -103,6 +103,10 @@ def merge(annotation_filepaths: List[str], save_to: str, delete_old: bool):
 
         # --------------------------------------------------------------------
 
+    # Take uniques among annotations by ID.
+    MERGED_ANNOTATIONS = {ann["image_id"]: ann for ann in MERGED_ANNOTATIONS}
+    MERGED_ANNOTATIONS = list(MERGED_ANNOTATIONS.values())
+
     # Sort annotations by timestamp.
     MERGED_ANNOTATIONS = sorted(MERGED_ANNOTATIONS, key=lambda k: k["created_utc"])
 
