@@ -85,6 +85,13 @@ and arrange all the data in recommended directory structure:
 
 That's it, you are all set to use RedCaps!
 
+### Organizing the dataset as TAR files
+
+We also provide a lightweight and standalone script to organize the dataset as TAR files
+of images and JSON annotations (subreddit name and caption),
+in a format compatible with [PyTorch Webdataset](https://github.com/webdataset/webdataset).
+See `scripts/make_tarfiles.py` for usage instructions.
+
 
 ## Advanced usage: Create your own RedCaps-like dataset
 
