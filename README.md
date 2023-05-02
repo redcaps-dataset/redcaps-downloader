@@ -25,6 +25,9 @@ python setup.py develop
 
 ## Basic usage: Download official RedCaps dataset
 
+<details>
+<summary> Expand </summary>
+
 We expect most users will only require this functionality.
 Follow these steps to download the official RedCaps annotations and images
 and arrange all the data in recommended directory structure:
@@ -85,15 +88,34 @@ and arrange all the data in recommended directory structure:
 
 That's it, you are all set to use RedCaps!
 
-### Organizing the dataset as TAR files
+</details>
 
-We also provide a lightweight and standalone script to organize the dataset as TAR files
-of images and JSON annotations (subreddit name and caption),
+## Organizing the dataset as TAR files
+
+<details>
+<summary> Expand </summary>
+
+If you wish to use this dataset to train large vision-language models like
+[CLIP](https://arxiv.org/abs/2103.00020), we recommend arranging the dataset as
+TAR files of images and JSON annotations (subreddit name and caption),
 in a format compatible with [PyTorch Webdataset](https://github.com/webdataset/webdataset).
-See `scripts/make_tarfiles.py` for usage instructions.
 
+This command converts **all** downloaded annotations and images to TAR files
+containing 1000 image-text pairs, skipping instances whose images were missing:
+
+```
+for ann in datasets/redcaps/annotations/*.json; do
+  python scripts/make_tarfiles.py --input $ann \
+    --images datasets/redcaps/images --output-dir datasets/redcaps/tarfiles
+done
+```
+
+</details>
 
 ## Advanced usage: Create your own RedCaps-like dataset
+
+<details>
+<summary> Expand </summary>
 
 Apart from downloading the officially released dataset, this tool supports
 downloading image-text data from any subreddit – you can reproduce the entire
@@ -221,6 +243,7 @@ and one must sign up for developer access to obtain API keys (one-time setup):
     redcaps validate --annotations ./datasets/redcaps/annotations/roses_2020.json
     ```
 
+</details>
 
 ## Citation
 
