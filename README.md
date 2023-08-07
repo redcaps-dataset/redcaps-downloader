@@ -106,7 +106,7 @@ containing 1000 image-text pairs, skipping instances whose images were missing:
 ```
 for ann in datasets/redcaps/annotations/*.json; do
   python scripts/make_tarfiles.py --input $ann \
-    --images datasets/redcaps/images --output-dir datasets/redcaps/tarfiles
+    --image-dir datasets/redcaps/images --output-dir datasets/redcaps/tarfiles
 done
 ```
 
