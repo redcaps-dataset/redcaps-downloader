@@ -153,7 +153,8 @@ def download_imgs(
             image_savepath = os.path.join(
                 save_to, ann["subreddit"], f"{ann['image_id']}.jpg"
             )
-            worker_args.append((ann["url"], image_savepath, image_downloader))
+            if not os.path.exists(image_savepath):
+                worker_args.append((ann["url"], image_savepath, image_downloader))
 
         # Collect download status of images in these annotations (True/False).
         download_status: List[bool] = []
