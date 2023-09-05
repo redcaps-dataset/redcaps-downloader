@@ -26,6 +26,10 @@ parser.add_argument(
     "-z", "--shard-size", type=int, default=1000,
     help="Path prefix for saving TAR files.",
 )
+parser.add_argument(
+    "--format", choices=["json", "txt"], default="json",
+    help="Format of the caption files.",
+)
 # fmt: on
 
 
@@ -63,13 +67,18 @@ def main(_A: argparse.Namespace):
 
         # Dump annotation JSON to a temporary file to add in TAR.
         with tempfile.NamedTemporaryFile("w+") as tmpfile:
-            add_in_tar = {"subreddit": ann["subreddit"], "caption": ann["caption"]}
-            tmpfile.write(json.dumps(add_in_tar))
+            if _A.format == 'json':
+                add_in_tar = {"subreddit": ann["subreddit"], "caption": ann["caption"]}
+                data = json.dumps(add_in_tar)
+            else:
+                data = ann["caption"]
+
+            tmpfile.write(data)
             tmpfile.seek(0)
 
             # Add image (JPG) and annotation (JSON) in TAR file.
             tar_handle.add(image_path, arcname=f"{ann['image_id']}.jpg")
-            tar_handle.add(tmpfile.name, arcname=f"{ann['image_id']}.json")
+            tar_handle.add(tmpfile.name, arcname=f"{ann['image_id']}.{_A.format}")
 
         ADDED_ANNS += 1
 
